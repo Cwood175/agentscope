@@ -5,7 +5,6 @@ from multiprocessing import Process
 from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
-from mcp.server import FastMCP
 
 from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
 from agentscope.message import TextBlock, ToolUseBlock
@@ -26,7 +25,11 @@ async def tool_1(arg1: str, arg2: list[int]) -> str:
 
 def setup_server() -> None:
     """Set up the streamable HTTP MCP server."""
-    sse_server = FastMCP("SSE", port=8003)
+    sse_server = HttpStatelessClient(
+        name="SSE",
+        transport="sse",
+        url="http://127.0.0.1:8003/sse",
+    )
     sse_server.tool(description="A test tool function.")(tool_1)
     sse_server.run(transport="sse")
 

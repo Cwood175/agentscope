@@ -8,7 +8,7 @@ from agentscope.formatter import DashScopeChatFormatter
 from agentscope.memory import InMemoryMemory
 from agentscope.message import TextBlock, ToolUseBlock, Msg
 from agentscope.model import ChatModelBase, ChatResponse
-from agentscope.tool import Toolkit
+from agentscope.tool import Toolkit  # noqa: F401
 
 
 class MyModel(ChatModelBase):

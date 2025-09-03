@@ -8,7 +8,6 @@ from . import exception
 from . import module
 from . import message
 from . import model
-from . import tool
 from . import formatter
 from . import memory
 from . import agent
@@ -17,7 +16,6 @@ from . import embedding
 from . import token
 from . import evaluate
 from . import pipeline
-from . import tracing
 
 from ._logging import (
     logger,
@@ -112,7 +110,6 @@ __all__ = [
     "module",
     "message",
     "model",
-    "tool",
     "formatter",
     "memory",
     "agent",
@@ -122,7 +119,6 @@ __all__ = [
     "token",
     "evaluate",
     "pipeline",
-    "tracing",
     # functions
     "init",
     "setup_logger",

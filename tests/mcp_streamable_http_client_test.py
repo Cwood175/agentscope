@@ -5,6 +5,7 @@ from multiprocessing import Process
 from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
+from mcp.client.streamable_http import streamablehttp_client
 from mcp.server import FastMCP
 
 from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
@@ -36,7 +37,7 @@ class StreamableHttpMCPClientTest(IsolatedAsyncioTestCase):
 
     async def asyncTearDown(self) -> None:
         """Tear down the test environment."""
-        while self.process.is_alive():
+        if self.process.is_alive():
             self.process.terminate()
             await asyncio.sleep(5)
 
@@ -52,7 +53,7 @@ class StreamableHttpMCPClientTest(IsolatedAsyncioTestCase):
 
         client = HttpStatelessClient(
             name="test_streamable_http_stateless_client",
-            transport="streamable_http",
+            transport=streamablehttp_client.TRANSPORT_NAME,
             url=f"http://127.0.0.1:{self.port}/mcp",
         )
 
@@ -90,7 +91,7 @@ class StreamableHttpMCPClientTest(IsolatedAsyncioTestCase):
         # Test stateful client connection
         client = HttpStatefulClient(
             name="test_streamable_http_stateless_client",
-            transport="streamable_http",
+            transport=streamablehttp_client.TRANSPORT_NAME,
             url=f"http://127.0.0.1:{self.port}/mcp",
         )
 

@@ -32,11 +32,6 @@ from ._async_wrapper import (
 from ._registered_tool_function import RegisteredToolFunction
 from ._response import ToolResponse
 from .._utils._common import _remove_title_field
-from ..mcp import (
-    MCPToolFunction,
-    MCPClientBase,
-    StatefulClientBase,
-)
 from ..message import (
     ToolUseBlock,
     TextBlock,
@@ -48,6 +43,17 @@ from ..types import (
 )
 from ..tracing._trace import trace_toolkit
 from .._logging import logger
+
+try:
+    from ..mcp import (
+        MCPToolFunction,
+        MCPClientBase,
+        StatefulClientBase,
+    )
+except ImportError:
+    MCPToolFunction = None
+    MCPClientBase = None
+    StatefulClientBase = None
 
 
 @dataclass
