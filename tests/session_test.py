@@ -4,6 +4,7 @@ import os
 from typing import Union
 from unittest import IsolatedAsyncioTestCase
 
+import mcp
 from agentscope.agent import ReActAgent, AgentBase
 from agentscope.formatter import DashScopeChatFormatter
 from agentscope.memory import InMemoryMemory

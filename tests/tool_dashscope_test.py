@@ -11,6 +11,7 @@ from agentscope.tool import (
     dashscope_image_to_text,
     dashscope_text_to_audio,
 )
+from mcp.client.streamable_http import streamablehttp_client
 
 
 class TestDashScopeTextToImage:

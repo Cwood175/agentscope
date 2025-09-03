@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 from pydantic import BaseModel, Field
 
 from agentscope.agent import UserAgent
-
+from mcp.client.streamable_http import streamablehttp_client
 
 class UserInputTest(IsolatedAsyncioTestCase):
     """The user input test class."""

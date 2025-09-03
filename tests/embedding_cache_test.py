@@ -8,6 +8,7 @@ from unittest.async_case import IsolatedAsyncioTestCase
 import numpy as np
 
 from agentscope.embedding import FileEmbeddingCache
+from mcp.client.streamable_http import streamablehttp_client
 
 
 class EmbeddingCacheTest(IsolatedAsyncioTestCase):

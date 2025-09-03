@@ -10,6 +10,7 @@ from agentscope.pipeline import (
     sequential_pipeline,
     fanout_pipeline,
 )
+from mcp.client import streamablehttp_client
 
 from agentscope.agent import AgentBase
 

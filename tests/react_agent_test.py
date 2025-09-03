@@ -9,6 +9,7 @@ from agentscope.memory import InMemoryMemory
 from agentscope.message import TextBlock, ToolUseBlock, Msg
 from agentscope.model import ChatModelBase, ChatResponse
 from agentscope.tool import Toolkit
+from mcp.client import streamablehttp_client
 
 
 class MyModel(ChatModelBase):

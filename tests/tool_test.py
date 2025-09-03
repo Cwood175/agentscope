@@ -9,6 +9,7 @@ from unittest import IsolatedAsyncioTestCase
 
 import shortuuid
 
+from agentscope.mcp import streamablehttp_client
 from agentscope.tool import (
     execute_python_code,
     execute_shell_command,

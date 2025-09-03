@@ -6,6 +6,7 @@ from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
 from mcp.server import FastMCP
+from mcp.client.streamable_http import streamablehttp_client
 
 from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
 from agentscope.message import TextBlock, ToolUseBlock

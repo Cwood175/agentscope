@@ -8,6 +8,7 @@ import mcp.types
 from mcp.server import FastMCP
 
 from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
+from mcp.client import streamable_http
 from agentscope.message import TextBlock
 from agentscope.tool import ToolResponse
 
@@ -52,7 +53,7 @@ class StreamableHttpMCPClientTest(IsolatedAsyncioTestCase):
 
         client = HttpStatelessClient(
             name="test_streamable_http_stateless_client",
-            transport="streamable_http",
+            transport=streamable_http.StreamableHttpClient,
             url=f"http://127.0.0.1:{self.port}/mcp",
         )
 
@@ -90,7 +91,7 @@ class StreamableHttpMCPClientTest(IsolatedAsyncioTestCase):
         # Test stateful client connection
         client = HttpStatefulClient(
             name="test_streamable_http_stateless_client",
-            transport="streamable_http",
+            transport=streamable_http.StreamableHttpClient,
             url=f"http://127.0.0.1:{self.port}/mcp",
         )
 
