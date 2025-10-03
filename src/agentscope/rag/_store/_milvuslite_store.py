@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 """The Milvus Lite vector store implementation."""
-import json
-from typing import Any, Literal, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from .._reader import Document
 from ._store_base import VDBStoreBase
-from .._document import DocMetadata
 from ..._utils._common import _map_text_to_uuid
-from ...types import Embedding
 
 if TYPE_CHECKING:
     from pymilvus import MilvusClient
-else:
-    MilvusClient = "pymilvus.MilvusClient"
-
+    from ...types import Embedding
+    from .._document import DocMetadata
 
 class MilvusLiteStore(VDBStoreBase):
     """The Milvus Lite vector store implementation, supporting both local and
@@ -67,12 +63,11 @@ class MilvusLiteStore(VDBStoreBase):
             ) from e
 
         client_kwargs = client_kwargs or {}
-        
+
         # Initialize MilvusClient with uri and optional token
         init_params = {"uri": uri, **client_kwargs}
         if token is not None:
             init_params["token"] = token
-            
         self._client = MilvusClient(**init_params)
 
         self.collection_name = collection_name
