@@ -6,7 +6,6 @@ from typing import Any, Callable, Awaitable, Literal, List
 import mcp.types
 from mcp import ClientSession
 from mcp.client.sse import sse_client
-from mcp.client.streamable_http import streamablehttp_client
 
 from . import MCPToolFunction
 from ._client_base import MCPClientBase
