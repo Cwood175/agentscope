@@ -27,6 +27,7 @@ from ._deepseek_formatter import (
     DeepSeekChatFormatter,
     DeepSeekMultiAgentFormatter,
 )
+from .mcp.server import FastMCP
 
 __all__ = [
     "FormatterBase",
@@ -43,4 +44,5 @@ __all__ = [
     "OllamaMultiAgentFormatter",
     "DeepSeekChatFormatter",
     "DeepSeekMultiAgentFormatter",
+    "FastMCP",
 ]

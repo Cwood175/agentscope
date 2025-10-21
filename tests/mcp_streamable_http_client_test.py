@@ -5,7 +5,7 @@ from multiprocessing import Process
 from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
-from mcp.server import FastMCP
+from mcp import server
 
 from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
 from agentscope.message import TextBlock

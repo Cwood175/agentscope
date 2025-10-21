@@ -58,7 +58,7 @@ class SessionTest(IsolatedAsyncioTestCase):
         agent1 = ReActAgent(
             name="Friday",
             sys_prompt="A helpful assistant.",
-            model=DashScopeChatModel(api_key="xxx", model_name="qwen_max"),
+            model=DashScopeChatModel(api_key="xxx", model_name="qwen_max", use_mcp=False),
             formatter=DashScopeChatFormatter(),
             toolkit=Toolkit(),
             memory=InMemoryMemory(),

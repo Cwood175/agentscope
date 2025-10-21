@@ -34,13 +34,9 @@ from ._response import ToolResponse
 from .._utils._common import _remove_title_field
 from ..mcp import (
     MCPToolFunction,
-    MCPClientBase,
     StatefulClientBase,
 )
-from ..message import (
-    ToolUseBlock,
-    TextBlock,
-)
+from ..message import ToolUseBlock
 from ..module import StateModule
 from ..types import (
     JSONSerializableObject,
@@ -481,9 +477,9 @@ class Toolkit(StateModule):
         to_removed = []
         func_names = deepcopy(list(self.tools.keys()))
         for func_name in func_names:
-            if self.tools[func_name].mcp_name in client_names:
-                self.tools.pop(func_name)
-                to_removed.append(func_name)
+            if hasattr(self.tools[func_name], "mcp_name") and self.tools[func_name].mcp_name in client_names:
+            self.tools.pop(func_name)
+            to_removed.append(func_name)
 
         logger.info(
             "Removed %d tool functions from %d MCP: %s",
@@ -600,24 +596,24 @@ class Toolkit(StateModule):
 
     async def register_mcp_client(
         self,
-        mcp_client: MCPClientBase,
+        mcp_client: Any,
         group_name: str = "basic",
         enable_funcs: list[str] | None = None,
         disable_funcs: list[str] | None = None,
         preset_kwargs_mapping: dict[str, dict[str, Any]] | None = None,
         postprocess_func: Callable[
             [
-                ToolUseBlock,
-                ToolResponse,
+                Any,
+                Any,
             ],
-            ToolResponse | None,
+            Any | None,
         ]
         | None = None,
     ) -> None:
         """Register tool functions from an MCP client.
 
         Args:
-            mcp_client (`MCPClientBase`):
+            mcp_client (`Any`):
                 The MCP client instance to connect to the MCP server.
             group_name (`str`, defaults to `"basic"`):
                 The group name that the tool functions will be added to.
@@ -631,8 +627,8 @@ class Toolkit(StateModule):
             defaults to `None`):
                 The preset keyword arguments mapping, whose keys are the tool
                 function names and values are the preset keyword arguments.
-            postprocess_func (`Callable[[ToolUseBlock, ToolResponse], \
-            ToolResponse | None] | None`, optional):
+            postprocess_func (`Callable[[Any, Any], Any | None] | None`, \
+            optional):
                 A post-processing function that will be called after the tool
                 function is executed, taking the tool call block and tool
                 response as arguments. If it returns `None`, the tool
@@ -696,7 +692,7 @@ class Toolkit(StateModule):
 
             # Obtain callable function object
             func_obj = await mcp_client.get_callable_function(
-                func_name=mcp_tool.name,
+                mcp_tool.name,
                 wrap_tool_result=True,
             )
 
@@ -707,10 +703,10 @@ class Toolkit(StateModule):
 
             # TODO: handle mcp_server_name
             self.register_tool_function(
-                tool_func=func_obj,
-                group_name=group_name,
-                preset_kwargs=preset_kwargs,
-                postprocess_func=postprocess_func,
+                func_obj,
+                group_name,
+                preset_kwargs,
+                postprocess_func,
             )
 
         logger.info(
@@ -843,7 +839,7 @@ class Toolkit(StateModule):
         so, raise a ValueError."""
         if func_name in self.tools:
             raise ValueError(
-                f"A function with name '{func_name} is already registered "
+                f"A function with name '{func_name}' is already registered "
                 "in the toolkit.",
             )
 

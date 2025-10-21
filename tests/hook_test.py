@@ -2,6 +2,7 @@
 """Hook related tests in agentscope."""
 from typing import Any
 from unittest.async_case import IsolatedAsyncioTestCase
+from mcp.client.streamable_http import streamablehttp_client
 
 from agentscope.agent import AgentBase
 from agentscope.message import Msg, TextBlock

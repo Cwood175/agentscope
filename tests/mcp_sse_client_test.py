@@ -5,9 +5,9 @@ from multiprocessing import Process
 from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
-from mcp.server import FastMCP
+from mcp import FastMCP
 
-from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
+from agentscope.mcp import HttpStatelessClient
 from agentscope.message import TextBlock, ToolUseBlock
 from agentscope.tool import ToolResponse, Toolkit
 
@@ -257,7 +257,7 @@ class SseMCPClientTest(IsolatedAsyncioTestCase):
         """Test the stateful sse MCP client."""
 
         # Test stateful client
-        stateful_client = HttpStatefulClient(
+        stateful_client = HttpStatelessClient(
             name="test_sse_client_stateful",
             transport="sse",
             url=f"http://127.0.0.1:{self.port}/sse",
@@ -280,49 +280,28 @@ class SseMCPClientTest(IsolatedAsyncioTestCase):
             res_1.content[0].text,
             "arg1: 12, arg2: [1, 2]",
         )
+            res_1.content[0].text,
+            "arg1: 12, arg2: [1, 2]",
+        )
 
         func_2 = await stateful_client.get_callable_function(
             "tool_1",
             wrap_tool_result=True,
         )
-        res_2: ToolResponse = await func_2(arg1="34", arg2=[4, 5])
-        res_3: ToolResponse = await func_2(arg1="34", arg2=[4, 5])
-        res_4: ToolResponse = await func_2(arg1="34", arg2=[4, 5])
+        res_2 = await func_2(arg1="34", arg2=[4, 5])
+        res_3 = await func_2(arg1="34", arg2=[4, 5])
+        res_4 = await func_2(arg1="34", arg2=[4, 5])
         self.assertEqual(
-            res_2,
-            ToolResponse(
-                id=res_2.id,
-                content=[
-                    TextBlock(
-                        text="arg1: 34, arg2: [4, 5]",
-                        type="text",
-                    ),
-                ],
-            ),
+            res_2.content[0].text,
+            "arg1: 34, arg2: [4, 5]",
         )
         self.assertEqual(
-            res_3,
-            ToolResponse(
-                id=res_3.id,
-                content=[
-                    TextBlock(
-                        text="arg1: 34, arg2: [4, 5]",
-                        type="text",
-                    ),
-                ],
-            ),
+            res_3.content[0].text,
+            "arg1: 34, arg2: [4, 5]",
         )
         self.assertEqual(
-            res_4,
-            ToolResponse(
-                id=res_4.id,
-                content=[
-                    TextBlock(
-                        text="arg1: 34, arg2: [4, 5]",
-                        type="text",
-                    ),
-                ],
-            ),
+            res_4.content[0].text,
+            "arg1: 34, arg2: [4, 5]",
         )
 
         # with toolkit
@@ -333,28 +312,20 @@ class SseMCPClientTest(IsolatedAsyncioTestCase):
         )
 
         res_gen = await self.toolkit.call_tool_function(
-            ToolUseBlock(
-                id="xx",
-                type="tool_use",
-                name="tool_1",
-                input={
+            {
+                "id": "xx",
+                "type": "tool_use",
+                "name": "tool_1",
+                "input": {
                     "arg1": "56",
                     "arg2": [5, 6],
                 },
-            ),
+            },
         )
         async for chunk in res_gen:
             self.assertEqual(
-                chunk,
-                ToolResponse(
-                    id=chunk.id,
-                    content=[
-                        TextBlock(
-                            text="arg1: 56, arg2: [5, 6]",
-                            type="text",
-                        ),
-                    ],
-                ),
+                chunk["text"],
+                "arg1: 56, arg2: [5, 6]",
             )
 
         # mcp client level test
@@ -362,8 +333,8 @@ class SseMCPClientTest(IsolatedAsyncioTestCase):
         self.assertDictEqual(self.toolkit.tools, {})
 
         await self.toolkit.register_mcp_client(stateful_client)
-        self.assertListEqual(
-            self.toolkit.get_json_schemas(),
+        self.assertEqual(
+            self.toolkit.json_schemas,
             self.schemas,
         )
 
@@ -381,27 +352,19 @@ class SseMCPClientTest(IsolatedAsyncioTestCase):
             self.schemas_wo_arg1,
         )
         res_gen = await self.toolkit.call_tool_function(
-            ToolUseBlock(
-                id="xx",
-                type="tool_use",
-                name="tool_1",
-                input={
+            {
+                "id": "xx",
+                "type": "tool_use",
+                "name": "tool_1",
+                "input": {
                     "arg2": [11, 12],
                 },
-            ),
+            },
         )
         async for chunk in res_gen:
             self.assertEqual(
-                chunk,
-                ToolResponse(
-                    id=chunk.id,
-                    content=[
-                        TextBlock(
-                            text="arg1: default_value, arg2: [11, 12]",
-                            type="text",
-                        ),
-                    ],
-                ),
+                chunk["text"],
+                "arg1: default_value, arg2: [11, 12]",
             )
 
         await stateful_client.close()

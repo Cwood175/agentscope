@@ -2,6 +2,8 @@
 """Test the RAG reader implementations."""
 import os
 from unittest.async_case import IsolatedAsyncioTestCase
+from mcp.client.streamable_http import streamablehttp_client
+from mcp.server import FastMCP
 
 from agentscope.rag import TextReader, PDFReader
 

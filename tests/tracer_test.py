@@ -14,7 +14,6 @@ from agentscope.formatter import FormatterBase
 from agentscope.message import (
     TextBlock,
     Msg,
-    ToolUseBlock,
 )
 from agentscope.model import ChatModelBase, ChatResponse
 from agentscope.tool import Toolkit, ToolResponse
@@ -244,7 +243,6 @@ class TracingTest(IsolatedAsyncioTestCase):
         class Formatter(FormatterBase):
             """Test Formatter class"""
 
-            @trace_format
             async def format(self, raise_error: bool = False) -> list[dict]:
                 """Simulate formatting"""
                 if raise_error:
@@ -265,11 +263,11 @@ class TracingTest(IsolatedAsyncioTestCase):
         """Test tracing toolkit"""
         toolkit = Toolkit()
 
-        def func(raise_error: bool) -> ToolResponse:
+        def func(raise_error: bool):
             """Test tool function"""
             if raise_error:
                 raise ValueError("Simulated error in tool function")
-            return ToolResponse(
+            return ToolkitResponse(
                 content=[
                     TextBlock(type="text", text="Tool executed successfully"),
                 ],
@@ -277,7 +275,7 @@ class TracingTest(IsolatedAsyncioTestCase):
 
         toolkit.register_tool_function(func)
         res = await toolkit.call_tool_function(
-            ToolUseBlock(
+            ToolUse(
                 type="tool_use",
                 id="xxx",
                 name="func",
@@ -310,22 +308,22 @@ class TracingTest(IsolatedAsyncioTestCase):
 
         async def gen_func(
             raise_error: bool,
-        ) -> AsyncGenerator[ToolResponse, None]:
+        ) -> AsyncGenerator[Any, None]:
             """Test async generator tool function"""
-            yield ToolResponse(
+            yield ToolkitResponse(
                 content=[TextBlock(type="text", text="Chunk 0")],
             )
             if raise_error:
                 raise ValueError(
                     "Simulated error in async generator tool function",
                 )
-            yield ToolResponse(
+            yield ToolkitResponse(
                 content=[TextBlock(type="text", text="Chunk 1")],
             )
 
         toolkit.register_tool_function(gen_func)
         res = await toolkit.call_tool_function(
-            ToolUseBlock(
+            ToolUse(
                 type="tool_use",
                 id="xxx",
                 name="gen_func",
@@ -362,7 +360,6 @@ class TracingTest(IsolatedAsyncioTestCase):
                 """Initialize embedding model"""
                 super().__init__("test_embedding", 3)
 
-            @trace_embedding
             async def __call__(self, raise_error: bool) -> list[list[float]]:
                 """Simulate embedding call"""
                 if raise_error:

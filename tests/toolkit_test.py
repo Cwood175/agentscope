@@ -376,11 +376,11 @@ class ToolkitTest(IsolatedAsyncioTestCase):
         """Verify async generator without interruption."""
         async for index, chunk in aenumerate(async_generator):
             if index == 0:
-                assert chunk == response1
+                self.assertEqual(chunk, response1)
             elif index == 1:
-                assert chunk == response2
+                self.assertEqual(chunk, response2)
             elif index == 2:
-                assert chunk == response3
+                self.assertEqual(chunk, response3)
 
     async def test_async_func(self) -> None:
         """Test asynchronous tool function"""

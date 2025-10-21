@@ -7,7 +7,7 @@ from agentscope.agent import ReActAgent
 from agentscope.formatter import DashScopeChatFormatter
 from agentscope.model import DashScopeChatModel
 from agentscope.plan import SubTask, Plan, PlanNotebook
-
+from mcp.client import streamablehttp_client
 
 class PlanTest(IsolatedAsyncioTestCase):
     """Test the plan module."""

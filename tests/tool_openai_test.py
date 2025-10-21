@@ -15,6 +15,7 @@ from agentscope.tool import (
     openai_text_to_audio,
     openai_audio_to_text,
 )
+from mcp.client.streamable_http import streamablehttp_client
 
 
 class TestOpenAITextToImage:

@@ -3,7 +3,7 @@
 import os
 import shutil
 import time
-from unittest.async_case import IsolatedAsyncioTestCase
+from unittest import IsolatedAsyncioTestCase
 
 import numpy as np
 

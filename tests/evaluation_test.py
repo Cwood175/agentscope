@@ -17,7 +17,6 @@ from agentscope.evaluate import (
     Task,
     BenchmarkBase,
     GeneralEvaluator,
-    RayEvaluator,
     FileEvaluatorStorage,
 )
 
