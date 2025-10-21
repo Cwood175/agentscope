@@ -6,7 +6,24 @@ from typing import Any, Callable, Awaitable, Literal, List
 import mcp.types
 from mcp import ClientSession
 from mcp.client.sse import sse_client
-from mcp.client.streamable_http import streamablehttp_client
+
+try:
+    from mcp.client.streamable_http import streamablehttp_client
+except ImportError:  # pragma: no cover - depends on installed mcp version
+
+    def streamablehttp_client(  # type: ignore[no-redef]
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        """Fallback raised when the installed mcp package does not provide
+        the streamable HTTP client."""
+        raise ImportError(
+            "The installed 'mcp' package does not provide "
+            "'mcp.client.streamable_http.streamablehttp_client'. "
+            "Please upgrade it with `pip install -U \"mcp>=1.10.0\"` to "
+            "use the 'streamable_http' transport.",
+        )
+
 
 from . import MCPToolFunction
 from ._client_base import MCPClientBase
