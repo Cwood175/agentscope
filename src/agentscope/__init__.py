@@ -1,31 +1,40 @@
-# -*- coding: utf-8 -*-
 """The agentscope serialization module"""
+
+import importlib
 import os
 
 import requests
 
-from . import exception
-from . import module
-from . import message
-from . import model
-from . import tool
-from . import formatter
-from . import memory
-from . import agent
-from . import session
-from . import embedding
-from . import token
-from . import evaluate
-from . import pipeline
-from . import tracing
-from . import rag
-
+from . import (
+    agent,
+    embedding,
+    evaluate,
+    exception,
+    formatter,
+    memory,
+    message,
+    model,
+    module,
+    pipeline,
+    rag,
+    session,
+    token,
+    tracing,
+)
 from ._logging import (
     logger,
     setup_logger,
 )
-from .hooks import _equip_as_studio_hooks
 from ._version import __version__
+from .hooks import _equip_as_studio_hooks
+
+
+def __getattr__(name: str):
+    if name == "tool":
+        tool_module = importlib.import_module(".tool", __name__)
+        globals()[name] = tool_module
+        return tool_module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def init(
@@ -85,7 +94,7 @@ def init(
         )
         response.raise_for_status()
 
-        from .agent import UserAgent, StudioUserInput
+        from .agent import StudioUserInput, UserAgent
 
         UserAgent.override_class_input_method(
             StudioUserInput(
