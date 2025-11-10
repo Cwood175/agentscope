@@ -58,7 +58,7 @@ async def execute_python_code(
 
         except asyncio.TimeoutError:
             stderr_suffix = (
-                f"TimeoutError: The code execution exceeded "
+                "TimeoutError: The code execution exceeded "
                 f"the timeout of {timeout} seconds."
             )
             returncode = -1
