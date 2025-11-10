@@ -25,13 +25,13 @@ async def execute_python_code(
     the result, and the tmp file will be removed right after the execution.
 
     Args:
-        code (`str`):
+        code (str):
             The Python code to be executed.
-        timeout (`float`, defaults to `300`):
+        timeout (float, defaults to 300):
             The maximum time (in seconds) allowed for the code to run.
 
     Returns:
-        `ToolResponse`:
+        ToolResponse:
             The response containing the return code, standard output, and
             standard error of the executed code.
     """
@@ -57,10 +57,7 @@ async def execute_python_code(
             returncode = proc.returncode
 
         except asyncio.TimeoutError:
-            stderr_suffix = (
-                f"TimeoutError: The code execution exceeded "
-                f"the timeout of {timeout} seconds."
-            )
+            stderr_suffix = f"TimeoutError: The code execution exceeded the timeout of {timeout} seconds."
             returncode = -1
             try:
                 proc.terminate()
