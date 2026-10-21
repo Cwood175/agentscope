@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """Unit tests for Zhipu AI model class."""
+
 from typing import AsyncGenerator
 from unittest.async_case import IsolatedAsyncioTestCase
 from unittest.mock import Mock, patch
 
+from agentscope.message import TextBlock
+from agentscope.model import ChatResponse, ZhipuChatModel
 from pydantic import BaseModel
-
-from agentscope.message import TextBlock, ToolUseBlock
-from agentscope.model import ZhipuChatModel, ChatResponse
 
 
 class SampleModel(BaseModel):
@@ -22,6 +22,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     def test_init_default_params(self) -> None:
         """Test initialization with default parameters."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client:
             model = ZhipuChatModel(model_name="glm-4", api_key="test_key")
             self.assertEqual(model.model_name, "glm-4")
@@ -35,6 +46,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
     def test_init_with_custom_params(self) -> None:
         """Test initialization with custom parameters."""
         generate_kwargs = {"temperature": 0.7, "max_tokens": 1000}
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client:
             model = ZhipuChatModel(
                 model_name="glm-4-plus",
@@ -55,6 +77,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_call_with_regular_model(self) -> None:
         """Test calling a regular model."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -87,6 +120,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_call_with_tools_integration(self) -> None:
         """Test full integration of tool calls."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -131,7 +175,9 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
             self.assertEqual(call_args["tool_choice"], "auto")
             self.assertEqual(len(result.content), 2)
             self.assertEqual(result.content[0]["type"], "text")
-            self.assertEqual(result.content[0]["text"], "I'll check the weather for you.")
+            self.assertEqual(
+                result.content[0]["text"], "I'll check the weather for you."
+            )
             self.assertEqual(result.content[1]["type"], "tool_use")
             self.assertEqual(result.content[1]["id"], "call_123")
             self.assertEqual(result.content[1]["name"], "get_weather")
@@ -139,6 +185,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_call_with_structured_model_integration(self) -> None:
         """Test full integration of a structured model."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -169,6 +226,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_streaming_response_processing(self) -> None:
         """Test processing of streaming response."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -222,6 +290,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_non_streaming_response_processing(self) -> None:
         """Test processing of non-streaming response."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -249,6 +328,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_tool_call_response_processing(self) -> None:
         """Test processing of tool call response."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -292,6 +382,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
 
     async def test_structured_output_response_processing(self) -> None:
         """Test processing of structured output response."""
+        import sys
+        import types
+
+        if "zai" not in sys.modules:
+            zai_mod = types.ModuleType("zai")
+
+            class ZhipuAiClient:  # stub for tests
+                pass
+
+            zai_mod.ZhipuAiClient = ZhipuAiClient
+            sys.modules["zai"] = zai_mod
         with patch("zai.ZhipuAiClient") as mock_client_class:
             mock_client = Mock()
             mock_client_class.return_value = mock_client
@@ -327,9 +428,9 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
         return mock_response
 
     def _create_mock_response_with_tools(
-            self,
-            content: str,
-            tool_calls: list[dict],
+        self,
+        content: str,
+        tool_calls: list[dict],
     ) -> Mock:
         """Create a mock response with tool calls for testing."""
         mock_tool_calls = []
@@ -355,17 +456,17 @@ class TestZhipuChatModel(IsolatedAsyncioTestCase):
         return mock_response
 
     def _create_mock_chunk(
-            self,
-            content: str = "",
-            finish_reason: str | None = None,
+        self,
+        content: str = "",
+        finish_reason: str | None = None,
     ) -> Mock:
         """Create a mock streaming chunk for testing."""
         mock_delta = Mock()
         mock_delta.content = content
         mock_delta.tool_calls = None
         # Ensure reasoning_content is not present or is None
-        if hasattr(mock_delta, 'reasoning_content'):
-            delattr(mock_delta, 'reasoning_content')
+        if hasattr(mock_delta, "reasoning_content"):
+            delattr(mock_delta, "reasoning_content")
 
         mock_choice = Mock()
         mock_choice.delta = mock_delta
