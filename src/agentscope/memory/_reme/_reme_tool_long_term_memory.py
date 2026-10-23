@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tool memory implementation using ReMe library.
 
 This module provides a tool memory implementation that integrates
@@ -8,12 +7,13 @@ tool usage guidelines.
 Requirements:
     Python 3.12 or greater is required to use ReMe.
 """
+
 from typing import Any
 
-from ._reme_long_term_memory_base import ReMeLongTermMemoryBase
 from ..._logging import logger
 from ...message import Msg, TextBlock
 from ...tool import ToolResponse
+from ._reme_long_term_memory_base import ReMeLongTermMemoryBase
 
 
 class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
@@ -116,8 +116,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
                     import warnings
 
                     warnings.warn(
-                        f"Failed to parse tool call result JSON: {item}. "
-                        f"Error: {str(e)}",
+                        f"Failed to parse tool call result JSON: {item}. Error: {e!s}",
                     )
                     continue
 
@@ -171,7 +170,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
                 content=[
                     TextBlock(
                         type="text",
-                        text=f"Error recording tool memory: {str(e)}",
+                        text=f"Error recording tool memory: {e!s}",
                     ),
                 ],
             )
@@ -228,8 +227,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
                 receive a message indicating that.
         """
         logger.info(
-            "[ReMeToolMemory] Entering retrieve_from_memory - "
-            "keywords: %s, kwargs: %s",
+            "[ReMeToolMemory] Entering retrieve_from_memory - keywords: %s, kwargs: %s",
             keywords,
             kwargs,
         )
@@ -275,7 +273,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
                 content=[
                     TextBlock(
                         type="text",
-                        text=f"Error retrieving tool memory: {str(e)}",
+                        text=f"Error retrieving tool memory: {e!s}",
                     ),
                 ],
             )
@@ -348,8 +346,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
                     tool_names_set.add(tool_call_result["tool_name"])
             except json.JSONDecodeError as e:
                 warnings.warn(
-                    f"Failed to parse tool call result JSON: {item}. "
-                    f"Error: {str(e)}",
+                    f"Failed to parse tool call result JSON: {item}. Error: {e!s}",
                 )
 
         return tool_call_results, tool_names_set
@@ -432,7 +429,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
             import warnings
 
             warnings.warn(
-                f"Error recording tool messages to memory: {str(e)}",
+                f"Error recording tool messages to memory: {e!s}",
             )
 
     def _extract_tool_names_from_message(self, msg: Msg) -> str:
@@ -479,7 +476,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
         self,
         msg: Msg | list[Msg] | None,
         **kwargs: Any,
-    ) -> str:
+    ) -> list[Msg]:
         """Retrieve tool guidelines from memory.
 
         Retrieve tool guidelines from memory based on message content.
@@ -501,9 +498,7 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
         if isinstance(msg, Msg):
             msg = [msg]
 
-        if not isinstance(msg, list) or not all(
-            isinstance(_, Msg) for _ in msg
-        ):
+        if not isinstance(msg, list) or not all(isinstance(_, Msg) for _ in msg):
             raise TypeError(
                 "The input message must be a Msg or a list of Msg objects.",
             )
@@ -536,5 +531,5 @@ class ReMeToolLongTermMemory(ReMeLongTermMemoryBase):
             logger.exception("Error retrieving tool guidelines: %s", str(e))
             import warnings
 
-            warnings.warn(f"Error retrieving tool guidelines: {str(e)}")
+            warnings.warn(f"Error retrieving tool guidelines: {e!s}")
             return ""
