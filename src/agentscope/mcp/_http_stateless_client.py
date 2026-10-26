@@ -1,16 +1,23 @@
-# -*- coding: utf-8 -*-
 """The MCP streamable HTTP server."""
+
+from collections.abc import Awaitable, Callable
 from contextlib import _AsyncGeneratorContextManager
-from typing import Any, Callable, Awaitable, Literal, List
+from typing import Any, Literal
 
 import mcp.types
 from mcp import ClientSession
 from mcp.client.sse import sse_client
-from mcp.client.streamable_http import streamablehttp_client
 
+try:
+    from mcp.client.streamable_http import streamablehttp_client
+except ImportError:
+    from mcp.client.streamable_http import (
+        streamable_http_client as streamablehttp_client,
+    )
+
+from ..tool import ToolResponse
 from . import MCPToolFunction
 from ._client_base import MCPClientBase
-from ..tool import ToolResponse
 
 
 class HttpStatelessClient(MCPClientBase):
@@ -132,7 +139,7 @@ class HttpStatelessClient(MCPClientBase):
             client_gen=self.get_client,
         )
 
-    async def list_tools(self) -> List[mcp.types.Tool]:
+    async def list_tools(self) -> list[mcp.types.Tool]:
         """List all tools available on the MCP server.
 
         Returns:

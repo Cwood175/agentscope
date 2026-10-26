@@ -1,29 +1,25 @@
-# -*- coding: utf-8 -*-
 """The toolkit class for tool calls in agentscope."""
 
 import asyncio
 import inspect
+from collections.abc import AsyncGenerator, Callable, Generator
 from copy import deepcopy
 from dataclasses import dataclass
 from functools import partial
 from typing import (
-    AsyncGenerator,
-    Literal,
-    Dict,
     Any,
-    Type,
-    Generator,
-    Callable,
+    Literal,
 )
 
+from docstring_parser import parse
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     create_model,
-    ConfigDict,
 )
-from docstring_parser import parse
 
+from .._utils._common import _remove_title_field
 from ._async_wrapper import (
     _async_generator_wrapper,
     _object_wrapper,
@@ -31,23 +27,36 @@ from ._async_wrapper import (
 )
 from ._registered_tool_function import RegisteredToolFunction
 from ._response import ToolResponse
-from .._utils._common import _remove_title_field
-from ..mcp import (
-    MCPToolFunction,
-    MCPClientBase,
-    StatefulClientBase,
-)
+
+try:
+    from ..mcp import (
+        MCPClientBase,
+        MCPToolFunction,
+        StatefulClientBase,
+    )
+except ImportError:
+
+    class MCPToolFunction:
+        pass
+
+    class MCPClientBase:
+        pass
+
+    class StatefulClientBase:
+        pass
+
+
+from .._logging import logger
 from ..message import (
-    ToolUseBlock,
     TextBlock,
+    ToolUseBlock,
 )
 from ..module import StateModule
+from ..tracing._trace import trace_toolkit
 from ..types import (
     JSONSerializableObject,
     ToolFunction,
 )
-from ..tracing._trace import trace_toolkit
-from .._logging import logger
 
 
 @dataclass
@@ -124,8 +133,7 @@ class Toolkit(StateModule):
         """
         if group_name in self.groups or group_name == "basic":
             raise ValueError(
-                f"Tool group '{group_name}' is already registered in the "
-                "toolkit.",
+                f"Tool group '{group_name}' is already registered in the toolkit.",
             )
 
         self.groups[group_name] = ToolGroup(
@@ -323,10 +331,7 @@ class Toolkit(StateModule):
 
         if "required" in json_schema["function"]["parameters"]:
             for arg_name in preset_kwargs or {}:
-                if (
-                    arg_name
-                    in json_schema["function"]["parameters"]["required"]
-                ):
+                if arg_name in json_schema["function"]["parameters"]["required"]:
                     json_schema["function"]["parameters"]["required"].remove(
                         arg_name,
                     )
@@ -431,7 +436,7 @@ class Toolkit(StateModule):
     def set_extended_model(
         self,
         func_name: str,
-        model: Type[BaseModel] | None,
+        model: type[BaseModel] | None,
     ) -> None:
         """Set the extended model for a tool function, so that the original
         JSON schema will be extended.
@@ -640,10 +645,7 @@ class Toolkit(StateModule):
                 `ToolResponse`, the returned block will be used as the
                 final tool result.
         """
-        if (
-            isinstance(mcp_client, StatefulClientBase)
-            and not mcp_client.is_connected
-        ):
+        if isinstance(mcp_client, StatefulClientBase) and not mcp_client.is_connected:
             raise RuntimeError(
                 "The MCP client is not connected to the server. Use the "
                 "`connect()` method first.",
@@ -653,10 +655,7 @@ class Toolkit(StateModule):
         if enable_funcs is not None and disable_funcs is not None:
             assert isinstance(enable_funcs, list) and all(
                 isinstance(_, str) for _ in enable_funcs
-            ), (
-                "Enable functions should be a list of strings, but got "
-                f"{enable_funcs}."
-            )
+            ), f"Enable functions should be a list of strings, but got {enable_funcs}."
 
             assert isinstance(disable_funcs, list) and all(
                 isinstance(_, str) for _ in disable_funcs
@@ -673,8 +672,7 @@ class Toolkit(StateModule):
             )
 
         if not (
-            preset_kwargs_mapping is None
-            or isinstance(preset_kwargs_mapping, dict)
+            preset_kwargs_mapping is None or isinstance(preset_kwargs_mapping, dict)
         ):
             raise TypeError(
                 f"The preset_kwargs_mapping must be a dictionary or None, "
@@ -856,9 +854,7 @@ class Toolkit(StateModule):
     ) -> dict:
         """Extract JSON schema from the tool function's docstring"""
         docstring = parse(tool_func.__doc__)
-        params_docstring = {
-            _.arg_name: _.description for _ in docstring.params
-        }
+        params_docstring = {_.arg_name: _.description for _ in docstring.params}
 
         # Function description
         descriptions = []
@@ -883,17 +879,15 @@ class Toolkit(StateModule):
                     continue
 
                 fields[name] = (
-                    Dict[str, Any]
+                    dict[str, Any]
                     if param.annotation == inspect.Parameter.empty
-                    else Dict[str, param.annotation],  # type: ignore
+                    else dict[str, param.annotation],  # type: ignore
                     Field(
                         description=params_docstring.get(
                             f"**{name}",
                             params_docstring.get(name, None),
                         ),
-                        default={}
-                        if param.default is param.empty
-                        else param.default,
+                        default={} if param.default is param.empty else param.default,
                     ),
                 )
 
@@ -910,9 +904,7 @@ class Toolkit(StateModule):
                             f"*{name}",
                             params_docstring.get(name, None),
                         ),
-                        default=[]
-                        if param.default is param.empty
-                        else param.default,
+                        default=[] if param.default is param.empty else param.default,
                     ),
                 )
 
@@ -923,9 +915,7 @@ class Toolkit(StateModule):
                     else param.annotation,
                     Field(
                         description=params_docstring.get(name, None),
-                        default=...
-                        if param.default is param.empty
-                        else param.default,
+                        default=... if param.default is param.empty else param.default,
                     ),
                 )
 

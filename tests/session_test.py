@@ -1,10 +1,33 @@
-# -*- coding: utf-8 -*-
 """Session module tests."""
+
 import os
-from typing import Union
+import sys
+import types
 from unittest import IsolatedAsyncioTestCase
 
-from agentscope.agent import ReActAgent, AgentBase
+try:
+    import mcp.client.streamable_http as _streamable_http
+except ImportError:
+    import mcp
+    import mcp.client
+
+    _streamable_http = types.ModuleType("mcp.client.streamable_http")
+    sys.modules["mcp.client.streamable_http"] = _streamable_http
+    mcp.client.streamable_http = _streamable_http
+
+if not hasattr(_streamable_http, "streamablehttp_client"):
+    from contextlib import asynccontextmanager
+
+    @asynccontextmanager
+    async def streamablehttp_client(*args, **kwargs):
+        raise NotImplementedError(
+            "streamablehttp_client is not available in the installed mcp version"
+        )
+        yield
+
+    _streamable_http.streamablehttp_client = streamablehttp_client
+
+from agentscope.agent import AgentBase, ReActAgent
 from agentscope.formatter import DashScopeChatFormatter
 from agentscope.memory import InMemoryMemory
 from agentscope.message import Msg
@@ -35,7 +58,7 @@ class MyAgent(AgentBase):
 
     async def handle_interrupt(
         self,
-        msg: Union[Msg, list[Msg], None] = None,
+        msg: Msg | list[Msg] | None = None,
     ) -> Msg:
         """Handle interrupt."""
 
