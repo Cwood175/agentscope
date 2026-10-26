@@ -1,15 +1,31 @@
-# -*- coding: utf-8 -*-
 """Unit tests for DashScope tools"""
 
 import base64
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
-from agentscope.message import ImageBlock, TextBlock, AudioBlock
-from agentscope.tool import ToolResponse
+# Compatibility shim for mcp versions lacking streamablehttp_client
+import mcp.client.streamable_http
+
+if not hasattr(mcp.client.streamable_http, "streamablehttp_client"):
+    if hasattr(mcp.client.streamable_http, "streamable_http_client"):
+        mcp.client.streamable_http.streamablehttp_client = (
+            mcp.client.streamable_http.streamable_http_client
+        )
+    else:
+
+        def streamablehttp_client(*args, **kwargs):
+            raise NotImplementedError(
+                "streamablehttp_client is not available in the installed mcp version"
+            )
+
+        mcp.client.streamable_http.streamablehttp_client = streamablehttp_client
+
+from agentscope.message import AudioBlock, ImageBlock, TextBlock
 from agentscope.tool import (
-    dashscope_text_to_image,
+    ToolResponse,
     dashscope_image_to_text,
     dashscope_text_to_audio,
+    dashscope_text_to_image,
 )
 
 
@@ -205,13 +221,18 @@ class TestDashScopeImageToText:
             "choices": [{"message": {"content": "Local image description"}}],
         }
 
-        with patch.dict("sys.modules", {"dashscope": mock_dashscope}), patch(
-            "agentscope.tool._multi_modality._dashscope_tools.os.path.exists",
-        ) as mock_exists, patch(
-            "agentscope.tool._multi_modality._dashscope_tools.os.path.isfile",
-        ) as mock_isfile, patch(
-            "agentscope.tool._multi_modality._dashscope_tools.os.path.abspath",
-        ) as mock_abspath:
+        with (
+            patch.dict("sys.modules", {"dashscope": mock_dashscope}),
+            patch(
+                "agentscope.tool._multi_modality._dashscope_tools.os.path.exists",
+            ) as mock_exists,
+            patch(
+                "agentscope.tool._multi_modality._dashscope_tools.os.path.isfile",
+            ) as mock_isfile,
+            patch(
+                "agentscope.tool._multi_modality._dashscope_tools.os.path.abspath",
+            ) as mock_abspath,
+        ):
             mock_exists.return_value = True
             mock_isfile.return_value = True
             mock_abspath.return_value = "/absolute/path/to/image.jpg"
@@ -231,11 +252,14 @@ class TestDashScopeImageToText:
 
     def test_image_to_text_invalid_local_path(self) -> None:
         """Test error handling for invalid local path"""
-        with patch(
-            "agentscope.tool._multi_modality._dashscope_tools.os.path.exists",
-        ) as mock_exists, patch(
-            "agentscope.tool._multi_modality._dashscope_tools.os.path.isfile",
-        ) as mock_isfile:
+        with (
+            patch(
+                "agentscope.tool._multi_modality._dashscope_tools.os.path.exists",
+            ) as mock_exists,
+            patch(
+                "agentscope.tool._multi_modality._dashscope_tools.os.path.isfile",
+            ) as mock_isfile,
+        ):
             mock_exists.return_value = True
             mock_isfile.return_value = False
 
@@ -248,8 +272,7 @@ class TestDashScopeImageToText:
         assert result.content == [
             TextBlock(
                 type="text",
-                text='Error: The input image url "./invalid_path" is not a '
-                "file.",
+                text='Error: The input image url "./invalid_path" is not a file.',
             ),
         ]
 
@@ -330,9 +353,7 @@ class TestDashScopeTextToAudio:
         mock_dashscope = MagicMock()
         mock_response = Mock()
         mock_response.get_audio_data.return_value = fake_audio_data
-        mock_dashscope.audio.tts.SpeechSynthesizer.call.return_value = (
-            mock_response
-        )
+        mock_dashscope.audio.tts.SpeechSynthesizer.call.return_value = mock_response
 
         with patch.dict("sys.modules", {"dashscope": mock_dashscope}):
             result = dashscope_text_to_audio(
@@ -357,9 +378,7 @@ class TestDashScopeTextToAudio:
         mock_dashscope = MagicMock()
         mock_response = Mock()
         mock_response.get_audio_data.return_value = None
-        mock_dashscope.audio.tts.SpeechSynthesizer.call.return_value = (
-            mock_response
-        )
+        mock_dashscope.audio.tts.SpeechSynthesizer.call.return_value = mock_response
 
         with patch.dict("sys.modules", {"dashscope": mock_dashscope}):
             result = dashscope_text_to_audio(
@@ -378,10 +397,8 @@ class TestDashScopeTextToAudio:
     def test_text_to_audio_api_exception(self) -> None:
         """Test exception handling during API call"""
         mock_dashscope = MagicMock()
-        mock_dashscope.audio.tts.SpeechSynthesizer.call.side_effect = (
-            Exception(
-                "TTS API Error",
-            )
+        mock_dashscope.audio.tts.SpeechSynthesizer.call.side_effect = Exception(
+            "TTS API Error",
         )
 
         with patch.dict("sys.modules", {"dashscope": mock_dashscope}):

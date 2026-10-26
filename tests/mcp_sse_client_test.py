@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
 """The MCP client test module in agentscope."""
+
 import asyncio
 from multiprocessing import Process
 from unittest.async_case import IsolatedAsyncioTestCase
 
 import mcp.types
-from mcp.server import FastMCP
+from mcp.server.fastmcp import FastMCP
 
-from agentscope.mcp import HttpStatelessClient, HttpStatefulClient
+from agentscope.mcp import HttpStatefulClient, HttpStatelessClient
 from agentscope.message import TextBlock, ToolUseBlock
-from agentscope.tool import ToolResponse, Toolkit
+from agentscope.tool import Toolkit, ToolResponse
 
 
 async def tool_1(arg1: str, arg2: list[int]) -> str:

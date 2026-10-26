@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The tool module unit tests"""
 
 import os
@@ -9,12 +8,26 @@ from unittest import IsolatedAsyncioTestCase
 
 import shortuuid
 
+# Compatibility shim for MCP API differences.
+try:
+    import mcp.client.streamable_http as _mcp_streamable_http
+
+    if not hasattr(_mcp_streamable_http, "streamablehttp_client"):
+        for _alias in ("streamable_http_client", "streamablehttpclient"):
+            if hasattr(_mcp_streamable_http, _alias):
+                _mcp_streamable_http.streamablehttp_client = getattr(
+                    _mcp_streamable_http, _alias
+                )
+                break
+except ImportError:
+    pass
+
 from agentscope.tool import (
     execute_python_code,
     execute_shell_command,
+    insert_text_file,
     view_text_file,
     write_text_file,
-    insert_text_file,
 )
 
 
@@ -33,9 +46,7 @@ class ToolTest(IsolatedAsyncioTestCase):
         # empty output
         res = await execute_python_code(code="a = 1 + 1")
         self.assertEqual(
-            "<returncode>0</returncode>"
-            "<stdout></stdout>"
-            "<stderr></stderr>",
+            "<returncode>0</returncode><stdout></stdout><stderr></stderr>",
             res.content[0]["text"],
         )
 
@@ -79,9 +90,7 @@ print("456")"""
         res = await execute_python_code(code)
         actual = res.content[0]["text"].replace("\r\n", "\n")
         self.assertEqual(
-            "<returncode>0</returncode>"
-            "<stdout>123\n456\n</stdout>"
-            "<stderr></stderr>",
+            "<returncode>0</returncode><stdout>123\n456\n</stdout><stderr></stderr>",
             actual,
         )
 
@@ -117,7 +126,7 @@ print("456")"""
 
         # without timeout
         normal_cmd = (
-            f"{sys.executable} -c \""  # fmt: skip
+            f'{sys.executable} -c "'  # fmt: skip
             f"import time; print('123'); "
             f"time.sleep(0.1); print('456')\""
         )
@@ -127,9 +136,7 @@ print("456")"""
         )
         actual = res.content[0]["text"].replace("\r\n", "\n")
         self.assertEqual(
-            "<returncode>0</returncode>"
-            "<stdout>123\n456\n</stdout>"
-            "<stderr></stderr>",
+            "<returncode>0</returncode><stdout>123\n456\n</stdout><stderr></stderr>",
             actual,
         )
 
